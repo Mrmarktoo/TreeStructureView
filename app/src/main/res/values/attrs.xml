@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <declare-styleable name="DashTreeView">
+        <!--虚线还是实线-->
+        <attr name="isDash" format="boolean" />
+        <!--虚线每段长度-->
+        <attr name="dashW" format="dimension" />
+        <!--虚线间距长度-->
+        <attr name="dashH" format="dimension" />
+        <!--虚线宽度-->
+        <attr name="lineW" format="dimension" />
+        <!--颜色-->
+        <attr name="lineCo" format="color" />
+        <!--&lt;!&ndash;方向&ndash;&gt;-->
+        <!--<attr name="dashO" format="integer" />-->
+        <!--视图模式-->
+        <attr name="mode" format="integer" />
+    </declare-styleable>
+
+</resources>
