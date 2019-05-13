@@ -16,6 +16,7 @@ import com.marktoo.demo.dashtreedemo.tree.BranchNode
 import com.marktoo.demo.dashtreedemo.tree.LeafNode
 import com.marktoo.demo.dashtreedemo.tree.RootNode
 import com.marktoo.demo.dashtreedemo.tree.TreeNode
+import com.marktoo.widget.treebranchview.TreeBranchView
 
 class MainActivity : AppCompatActivity() {
 
@@ -24,7 +25,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_tree)
         rv_tree_list = findViewById(R.id.rv_tree_list)
-        val adapter = MyAdapter(mockData(), this)
+        val adapter = MyAdapter(mockData(), this, true)
         rv_tree_list.layoutManager = LinearLayoutManager(this)
         rv_tree_list.adapter = adapter
     }
@@ -58,7 +59,11 @@ class MainActivity : AppCompatActivity() {
         return nodeList
     }
 
-    class MyAdapter(private val source: ArrayList<TreeNode<String>>, private val mContext: Context) :
+    class MyAdapter(
+        private val source: ArrayList<TreeNode<String>>,
+        private val mContext: Context,
+        private val animateChange: Boolean = false
+    ) :
         RecyclerView.Adapter<MyHolder>() {
 
         private var nodeList = ArrayList<TreeNode<String>>()
@@ -69,26 +74,39 @@ class MainActivity : AppCompatActivity() {
         }
 
         private val onTreeClickListener = object : OnTreeClickListener<TreeNode<String>> {
-            override fun onChildClick(node: TreeNode<String>, index: Int) {
+            override fun onChildClick(node: TreeNode<String>) {
                 Toast.makeText(mContext, node.data, Toast.LENGTH_SHORT).show()
             }
 
-            override fun onNodeClick(node: TreeNode<String>, index: Int) {
+            override fun onNodeClick(node: TreeNode<String>) {
+                val animateIndex = findIndex(node)
+
                 if (node.isOpen) {
                     val removeList = node.close()
                     nodeList.removeAll(removeList)
-                    showLog("removeList index= $index , size=${removeList.size} \n" + Gson().toJson(removeList))
-                    showLog("after removeList index= $index , size= ${nodeList.size}\n" + Gson().toJson(nodeList))
-//                    notifyItemRangeRemoved(index + 1, removeList.size)
+                    if (animateChange && animateIndex >= 0) {
+                        notifyItemRangeRemoved(animateIndex + 1, removeList.size)
+                    }
                 } else {
                     val addList: ArrayList<TreeNode<String>> = node.open()
-                    nodeList.addAll(index + 1, addList)
-                    showLog("addList index= $index , size=${addList.size} \n" + Gson().toJson(addList))
-                    showLog("after index= $index , addList size=${nodeList.size} \n" + Gson().toJson(nodeList))
-//                    notifyItemRangeInserted(index + 1, addList.size)
+                    nodeList.addAll(animateIndex + 1, addList)
+                    if (animateChange && animateIndex >= 0) {
+                        notifyItemRangeInserted(animateIndex + 1, addList.size)
+                    }
                 }
-                notifyDataSetChanged()
+                if (!animateChange || animateIndex == -1) {
+                    notifyDataSetChanged()
+                }
             }
+        }
+
+        fun findIndex(node: TreeNode<String>): Int {
+            for (i in 0 until nodeList.size) {
+                if (node == nodeList[i]) {
+                    return i
+                }
+            }
+            return -1
         }
 
         override fun getItemViewType(position: Int): Int {
@@ -133,13 +151,14 @@ class MainActivity : AppCompatActivity() {
             showLog("onBindViewHolder position = $position ,data = ${nodeList[position].data}")
             holder.tvTitle?.text = nodeList[position].data
             holder.initMode(nodeList[position])
-            holder.tvTitle?.setOnClickListener {
-                val node = nodeList[position]
+            holder.itemView.setOnClickListener {
+                val node = holder.data
                 if (node.hasChild()) {
-                    onTreeClickListener.onNodeClick(node, position)
+                    onTreeClickListener.onNodeClick(node)
                 } else {
-                    onTreeClickListener.onChildClick(nodeList[position], position)
+                    onTreeClickListener.onChildClick(node)
                 }
+                holder.update(node)
             }
         }
 
@@ -147,8 +166,10 @@ class MainActivity : AppCompatActivity() {
 
     class MyHolder(itemView: View, private val viewType: Int) : RecyclerView.ViewHolder(itemView) {
         var tvTitle: TextView? = null
-        var tree: DashTreeView? = null
-        var tree2: DashTreeView? = null
+        var tree: TreeBranchView? = null
+        var tree2: TreeBranchView? = null
+
+        lateinit var data: TreeNode<String>
 
         init {
             itemView?.apply {
@@ -161,6 +182,18 @@ class MainActivity : AppCompatActivity() {
         }
 
         fun initMode(node: TreeNode<String>) {
+            this.data = node
+            update(node)
+        }
+
+        private fun isLastOne(node: TreeNode<String>): Boolean {
+            if (node.parent == null) {
+                return false
+            }
+            return node.parent.children.last() == node
+        }
+
+        fun update(node: TreeNode<String>) {
             when (viewType) {
                 ROOT_LEVEL -> {
                     if (node.isOpen) {
@@ -191,18 +224,11 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
-
-        private fun isLastOne(node: TreeNode<String>): Boolean {
-            if (node.parent == null) {
-                return false
-            }
-            return node.parent.children.last() == node
-        }
     }
 
     interface OnTreeClickListener<T> {
-        fun onChildClick(node: T, index: Int)
-        fun onNodeClick(node: T, index: Int)
+        fun onChildClick(node: T)
+        fun onNodeClick(node: T)
     }
 }
 

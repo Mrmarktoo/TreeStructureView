@@ -1,4 +1,4 @@
-package com.marktoo.demo.dashtreedemo;
+package com.marktoo.widget.treebranchview;
 
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -15,19 +15,18 @@ import android.view.View;
  * className: DashTreeView
  * date: 2019/3/28 16:47
  * desc: 树形组织结构展示
- * company: joinUTech
  *
  * @author zyy
  */
-public class DashTreeView extends View {
+public class TreeBranchView extends View {
 
     private static final String TAG = "DashTree";
 
-    public DashTreeView(Context context) {
+    public TreeBranchView(Context context) {
         this(context, null);
     }
 
-    public DashTreeView(Context context, AttributeSet attrs) {
+    public TreeBranchView(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
@@ -70,7 +69,7 @@ public class DashTreeView extends View {
     private Paint mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 
     @TargetApi(21)
-    public DashTreeView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public TreeBranchView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.DashTreeView);
         lineHeight = typedArray.getDimension(R.styleable.DashTreeView_dashH, DEFAULT_LINE_HEIGHT);
@@ -149,8 +148,6 @@ public class DashTreeView extends View {
             default:
                 break;
         }
-        //        showLog("left=" + startLeft + ",top=" + startTop + ",right=" + endRight + ",bottom=" + endBottom);
-        //        showLog("left=" + getX() + ",top=" + getY() + ",right=" + endRight + ",bottom=" + endBottom);
     }
 
     @Override

@@ -5,7 +5,7 @@
     android:layout_height="50dp"
     android:background="#969696">
 
-    <com.marktoo.demo.dashtreedemo.DashTreeView
+    <com.marktoo.widget.treebranchview.TreeBranchView
         android:id="@+id/tree"
         android:layout_width="50dp"
         android:layout_height="50dp"
